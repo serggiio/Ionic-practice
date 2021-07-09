@@ -1,0 +1,2 @@
+--start project
+ionic serve
