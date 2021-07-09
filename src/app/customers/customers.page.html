@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar color="custom">
+    <ion-title>customers</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-searchbar placeholder="Buscar" animated (ionChange)="searchCustomer($event)"></ion-searchbar>
+  </ion-toolbar>
+
+</ion-header>
+
+<ion-content>
+
+  <ion-grid style="padding: 25px;">
+    <ion-checkbox id="checkPermission" color="secondary" checked="true" (ionChange)="checkEvent($event)" name="option"></ion-checkbox>
+    <ion-label>Show results</ion-label> <br>
+
+    <ion-button color="danger" expand="block" (click)="showAlert()">Delete customers</ion-button>
+  </ion-grid>
+
+  <ion-grid>
+    {{dat}}
+    <ion-row *ngIf="permission">
+      <ion-col size="4" *ngFor="let data of searchUser">
+
+        <ion-card (click)="showToast(data)" [routerLink]="['/customer/', data.id]">
+          <img class="customerImg" src="{{data.avatar}}" />
+          <ion-card-header>
+            <ion-card-subtitle>{{data.email}}</ion-card-subtitle>
+            <ion-card-title>{{data.first_name + ' ' + data.last_name}}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            Founded in 1829 on an isthmus between Lake Monona and Lake Mendota, Madison was named the capital of the Wisconsin Territory in 1836.
+          </ion-card-content>
+        </ion-card>
+
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  
+</ion-content>

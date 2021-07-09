@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "name": "Unifranz",
+        "latitude": -17.3757256,
+        "longitude": -66.1605014,
+        "description": "Universidad privada franz tamayo internacionalizate",
+        "imageUrl": "assets/unifranz.png",
+        "mapIcon": "assets/icon/unifranz.png"
+    },
+    {
+        "id": 2,
+        "name": "Univalle",
+        "latitude": -17.3359942,
+        "longitude": -66.2358492,
+        "description": "Universidad privada del valle .......",
+        "imageUrl": "assets/univalle.png",
+        "mapIcon": "assets/icon/univalle.png"
+    },
+    {
+        "id": 3,
+        "name": "U catolica",
+        "latitude": -17.3678972,
+        "longitude": -66.1437224,
+        "description": "Universidad catolica boliviana ..........",
+        "imageUrl": "assets/ucatolica.png",
+        "mapIcon": "assets/icon/ucatolica.png"
+    }
+]
