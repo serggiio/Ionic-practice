@@ -1,8 +1,8 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>maps</ion-title>
-    <ion-button color="success" (click)="startTracking()" *ngIf="!trackingStatus">Track location start <ion-icon class="locationButton" name="navigate-outline"></ion-icon></ion-button>
-  <ion-button color="danger" (click)="stopTraking()" *ngIf="trackingStatus">Track location end <ion-icon class="locationButton" name="stop-circle-outline"></ion-icon></ion-button>
+    
+  
   </ion-toolbar>
 </ion-header>
 
@@ -44,4 +44,8 @@
       </ion-item-sliding>
     
     </ion-list>
+
+    <br>
+
+    <div id="directionsPanel" style="float:right;width:30%;height:100%"></div>
 </ion-content>

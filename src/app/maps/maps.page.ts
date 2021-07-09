@@ -21,15 +21,21 @@ import { EMPTY } from 'rxjs';
 })
 export class MapsPage implements OnInit {
   map: google.maps.Map;
+  directionsService: google.maps.DirectionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer();
+  routeServiceResponse: any;
   mapTest: google.maps.Map;
   loading: any;
-  googleM: google;
+  //googleM: google;
   trackingStatus: boolean;
   currentLocation: any;
 
   watchLocation = null;
 
   placesData: any = [];
+
+  mapMarkers = [];
+  userMarker: any;
 
   @ViewChild('map') mapElement: ElementRef;
 
@@ -41,7 +47,8 @@ export class MapsPage implements OnInit {
     private placesService: PlacesService) { }
 
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.startTracking();
     //await this.platform.ready();
     //await this.loadMap();
     this.trackingStatus = false;
@@ -67,16 +74,17 @@ export class MapsPage implements OnInit {
 
   startTracking() {
     this.trackingStatus = true;
+    console.log('CONTINUAR', this.trackingStatus);
     //this.getCurrentLocation();
     this.watchPosition();
 
     
   }
 
-  stopTraking() {
-    Geolocation.clearWatch({ id: this.watchLocation }).then(() => {
-      this.trackingStatus = false;
-    });
+  async stopTraking() {
+    this.trackingStatus = false;
+    console.log('PAUSAR', this.trackingStatus);
+    await Geolocation.clearWatch({ id: this.watchLocation });
   }
 
   async getCurrentLocation() {
@@ -87,26 +95,49 @@ export class MapsPage implements OnInit {
   watchPosition() {
     this.watchLocation = Geolocation.watchPosition({}, (position, err) => {
       console.log('new position: ', position);
+      console.log('new position: err  ', err);
+      
       if(position) {
+        
+        this.currentLocation = position.coords;
+        //before add a marker delete all old markers
+        if(this.userMarker !== undefined) {
+          this.userMarker.setMap(null);
+        }
         this.addLocation(
           position.coords.latitude,
-          position.coords.longitude
+          position.coords.longitude,
+          google.maps.Animation.DROP,
+          null,
+          'user'
+
         )
       }
 
     });
   }
 
-  addLocation(lat, lng, animation?, icon?) {
+  deleteOldMarkers() {
+
+      for(let n in this.mapMarkers){
+        this.mapMarkers[n].setMap(null);
+      }
+  }
+
+  addLocation(lat, lng, animation?, icon?, type?) {
+    type = type || 'place';
     let location = new google.maps.LatLng(lat, lng);
-    new google.maps.Marker({
+    let marker = new google.maps.Marker({
       position: location,
       map: this.map,
       title: "Hello World!",
-      animation: animation || google.maps.Animation.DROP,
+      animation: animation || google.maps.Animation.BOUNCE,
       icon: icon || null
 
     });
+    //this.mapMarkers.push(marker);
+    (type == 'user') ? (this.userMarker = marker) : (this.mapMarkers.push(marker)); 
+
     this.map.setCenter(location);
     this.map.setZoom(13);
   }
@@ -132,7 +163,6 @@ export class MapsPage implements OnInit {
     setTimeout(() => {
       console.log('Done');
       event.target.complete();
-
       // App logic to determine if all data is loaded
       // and disable the infinite scroll
       if (this.placesData.length == 1000) {
@@ -142,16 +172,48 @@ export class MapsPage implements OnInit {
   }
 
   routeService(data) {
-    console.log(this.trackingStatus);
-    if(this.trackingStatus) {
+    //console.log(this.trackingStatus);
+    //delete all markers before add a new one
+    this.deleteOldMarkers();
+    this.addLocation(data.latitude, data.longitude, google.maps.Animation.BOUNCE, data.mapIcon, 'place');
+
+    this.displayRoute(data.latitude, data.longitude);
+    /*if(this.trackingStatus) {
       //trackig activated, should mark route betwen markers
+      this.displayRoute(data.latitude, data.longitude);
+
     }else {
-      this.addLocation(data.latitude, data.longitude, google.maps.Animation.BOUNCE, data.mapIcon)
+      //this.addLocation(data.latitude, data.longitude, google.maps.Animation.BOUNCE, data.mapIcon)
       //traking desactivated, center map on place position
 
 
 
-    }
+    }*/
+  }
+
+  displayRoute(originLat, originLng) {
+
+    const waypts: google.maps.DirectionsWaypoint[] = [];
+    //let directionsRenderer = new google.maps.DirectionsRenderer();
+    this.directionsService
+      .route({
+        origin: new google.maps.LatLng(this.currentLocation.latitude, this.currentLocation.longitude),
+        destination: new google.maps.LatLng(originLat, originLng),
+        travelMode: google.maps.TravelMode.DRIVING,
+      })
+      .then((response) => {
+        console.log('respuesta de servicio::::');
+        console.log(response);
+        this.routeServiceResponse = response;
+        
+        this.directionsRenderer.setMap(null);
+
+        this.directionsRenderer.setMap(this.map);
+        this.directionsRenderer.setOptions({suppressMarkers: true});
+        this.directionsRenderer.setDirections(this.routeServiceResponse);
+      })
+      .catch((e) => window.alert("Directions request failed due to " + status));
+
   }
 
   
